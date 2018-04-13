@@ -57,7 +57,8 @@ class taskController extends Controller
     }
     public function trigger(Request $request){
         $tasks = array();
-        if(task::whereBetween('date', [Carbon::now()->subHours(4)->subMinutes(5),
+        if(task::where('user_id',Auth::user()->id)->whereBetween('date',
+            [Carbon::now()->subHours(4)->subMinutes(5),
             Carbon::now()->subHours(4)->addMinutes(5)])->where('notified',0)->get()->count()){
             $tasks['dates'] = task::whereBetween('date', [Carbon::now()->subHours(4)->subMinutes(5), Carbon::now()->subHours(4)->addMinutes(5)])->where('notified',0)->get();
             foreach ($tasks['dates'] as $task){
@@ -68,7 +69,10 @@ class taskController extends Controller
         else{
             $tasks['dates'] = ['none'];
         }
-        if(task::whereBetween('locationX', [$request->locationX - .5, $request->locationX + .5])->get()->count() && task::whereBetween('locationY', [$request->locationY - .5, $request->locationY + .5])->where('notified',0)->get()->count()){
+        if(task::where('user_id',Auth::user()->id)->whereBetween('locationX',
+                [$request->locationX - .5, $request->locationX + .5])->get()->count() &&
+            task::whereBetween('locationY', [$request->locationY - .5, $request->locationY + .5])->
+            where('notified',0)->get()->count()){
             $tasks['locations'] = task::whereBetween('locationX', [$request->locationX - .5, $request->locationX + .5])->where('notified',0)->get();
             foreach ($tasks['locations'] as $task){
                 $task->notified = 1;
